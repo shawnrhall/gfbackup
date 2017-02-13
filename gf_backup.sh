@@ -27,7 +27,7 @@ aws_sync ()
 {
 # sync with aws
 echo "Running AWS SYNC"
-pssh -p 6 -t 0  -o $basedir/logs -e $basedir/logs -h $basedir/hosts.backup 'aws s3 sync /dbbackup/gemfireBackup s3://pske-gemfire-backup/$HOSTNAME --delete --include "*.tar.gz*"'
+pssh -p 6 -t 0  -o $basedir/logs -e $basedir/logs -h $basedir/hosts.backup 'aws s3 sync /dbbackup/gemfireBackup $s3_bucket/$HOSTNAME --delete --include "*.tar.gz*"'
 
 check_aws_sync
 }
@@ -36,7 +36,7 @@ check_aws_sync
 backup_gemfire ()
 {
 sudo gfsh <<EOF
-connect --locator=localhost[10334] --security-properties-file=/opt/penske/gemfire/gfsecurity.properties
+connect --locator=localhost[10334] --security-properties-file=$security_properties_file
 backup disk-store --dir=$backupdir/$backupts
 EOF
 }
@@ -101,7 +101,7 @@ for hname in ${hostlist[@]}; do
   ##Query S3 backup location, AWK is being used to cut the size and filename
 
   ##Verify file and size exist in AWS as it is on disk
-  aws s3 ls s3://pske-gemfire-backup/$hname.penske.com/ | awk -F" " '{print $3" "$4}' | tr " " "\n"  > /tmp/awsarrayfile
+  aws s3 ls $s3_bucket/$hname/ | awk -F" " '{print $3" "$4}' | tr " " "\n"  > /tmp/awsarrayfile
   readarray awsarr < /tmp/awsarrayfile
 
 # Backups on disk
