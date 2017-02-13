@@ -36,7 +36,7 @@ check_aws_sync
 backup_gemfire ()
 {
 sudo gfsh <<EOF
-connect --locator=localhost[10334] --security-properties-file=$security_properties_file
+connect --locator=$locator --security-properties-file=$security_properties_file
 backup disk-store --dir=$backupdir/$backupts
 EOF
 }
